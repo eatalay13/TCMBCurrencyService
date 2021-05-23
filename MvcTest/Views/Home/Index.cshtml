@@ -1,0 +1,133 @@
+﻿@using TCMB.CurrencyService.Models
+@using Microsoft.AspNetCore.Http
+@using MvcTest.Extensions
+@using System.Globalization
+
+@inject IHttpContextAccessor HttpContext
+
+@model IndexViewModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<form asp-action="Index" asp-controller="Home" method="get" id="currencyFilterForm">
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label asp-for="SearchKey"></label>
+            <input asp-for="SearchKey" class="form-control" placeholder="Ara">
+        </div>
+        <div class="form-group col-md-4">
+            <label asp-for="CurrencyCode"></label>
+            <input asp-for="CurrencyCode" class="form-control" placeholder="USD">
+        </div>
+        <div class="form-group col-md-4">
+            <label asp-for="Unit"></label>
+            <input asp-for="Unit" class="form-control" placeholder="Birim">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-3">
+            <label asp-for="MinForexBuying"></label>
+            <input asp-for="MinForexBuying" class="form-control" placeholder="Min Döviz Alış">
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="MaxForexBuying"></label>
+            <input asp-for="MaxForexBuying" class="form-control" placeholder="Max Döviz Alış">
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="MinForexSelling"></label>
+            <input asp-for="MinForexSelling" class="form-control" placeholder="Min Döviz Satış">
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="MaxForexSelling"></label>
+            <input asp-for="MaxForexSelling" class="form-control" placeholder="Max Döviz Satış">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-3">
+            <label asp-for="MinBanknoteBuying"></label>
+            <input asp-for="MinBanknoteBuying" class="form-control" placeholder="Min Efektif Alış">
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="MaxBanknoteBuying"></label>
+            <input asp-for="MaxBanknoteBuying" class="form-control" placeholder="Max Efektif Alış">
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="MinBanknoteSelling"></label>
+            <input asp-for="MinBanknoteSelling" class="form-control" placeholder="Min Efektif Satış">
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="MaxBanknoteSelling"></label>
+            <input asp-for="MaxBanknoteSelling" class="form-control" placeholder="Max Efektif Satış">
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Filtrele</button>
+    <div class="dropdown float-right">
+        <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Dışa Aktar
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            @foreach (var item in Model.ExporterNames)
+            {
+                <a class="dropdown-item exportBtn" href="#" export-type="@item">@item</a>
+            }
+        </div>
+    </div>
+</form>
+<hr />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Model.ColumnOrderHtml(nameof(Currency.CurrencyCode), "Döviz Kodu", HttpContext)</th>
+            <th>@Model.ColumnOrderHtml(nameof(Currency.Unit), "Birim", HttpContext)</th>
+            <th>@Model.ColumnOrderHtml(nameof(Currency.Isim), "Döviz Cinsi", HttpContext)</th>
+            <th>@Model.ColumnOrderHtml(nameof(Currency.ForexBuying), "Döviz Alış", HttpContext)</th>
+            <th>@Model.ColumnOrderHtml(nameof(Currency.ForexSelling), "Döviz Satış", HttpContext)</th>
+            <th>@Model.ColumnOrderHtml(nameof(Currency.BanknoteBuying), "Efektif Alış", HttpContext)</th>
+            <th>@Model.ColumnOrderHtml(nameof(Currency.BanknoteSelling), "Efektif Satış", HttpContext)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Currencies)
+        {
+            <tr>
+                <th>
+                    <img src="https://www.tcmb.gov.tr/kurlar/kurlar_tr_dosyalar/images/@(item.CurrencyCode).gif" />
+                    &nbsp;@item.CurrencyCode/TRY
+                </th>
+                <td>@item.Unit</td>
+                <td>@item.Isim</td>
+                <td>@item.ForexBuying.ToString("C4", CultureInfo.CurrentCulture)</td>
+                <td>@item.ForexSelling.ToString("C4", CultureInfo.CurrentCulture)</td>
+                <td>@item.BanknoteBuying?.ToString("C4", CultureInfo.CurrentCulture)</td>
+                <td>@item.BanknoteSelling?.ToString("C4", CultureInfo.CurrentCulture)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts{
+    <script src="~/lib/jquery.redirect/jquery.redirect.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $(".exportBtn").click(function () {
+                let exportType = $(this).attr("export-type");
+                let filterFrm = objectifyForm($("#currencyFilterForm").serializeArray());
+
+                filterFrm.OrderColumn = '@Model.OrderColumn';
+                filterFrm.OrderDirection = '@Model.OrderDirection';
+
+                $.redirect("/Home/Export", { filter: filterFrm, exportType }, "POST", "_blank");
+            });
+
+            function objectifyForm(formArray) {
+                var returnArray = {};
+                for (var i = 0; i < formArray.length; i++) {
+                    returnArray[formArray[i]['name']] = formArray[i]['value'];
+                }
+                return returnArray;
+            }
+        });
+    </script>
+}
