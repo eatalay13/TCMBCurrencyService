@@ -11,7 +11,7 @@ namespace TCMB.CurrencyService.Exporters
     {
         public ExportResult Export(IEnumerable<T> items)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(List<T>));
+            XmlSerializer serializer = new(typeof(List<T>));
 
             var stringwriter = new StringWriter();
             serializer.Serialize(stringwriter, items.ToList());

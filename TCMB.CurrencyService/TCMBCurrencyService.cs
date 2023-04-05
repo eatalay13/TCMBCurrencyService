@@ -25,8 +25,7 @@ namespace TCMB.CurrencyService
             {
                 lock (_lock)
                 {
-                    if (_instance == null)
-                        _instance = new TCMBCurrencyService();
+                    _instance ??= new TCMBCurrencyService();
 
                     return _instance;
                 }
@@ -90,7 +89,7 @@ namespace TCMB.CurrencyService
 
         private IEnumerable<Currency> GetXmlDataList()
         {
-            if ((currencyList != null && currencyList.Any()) || (DateTime.Now - _lastCheckTime).TotalMinutes < DataCacheMinute)
+            if ((currencyList != null && currencyList.Any()) && (DateTime.Now - _lastCheckTime).TotalMinutes < DataCacheMinute)
                 return currencyList;
 
             XDocument xmlDocument = XDocument.Load(_apiUrl);

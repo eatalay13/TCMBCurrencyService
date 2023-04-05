@@ -32,10 +32,7 @@ namespace TCMB.CurrencyService.Exporters
 
         public static IExporter<T> GetExporterByName<T>(string name)
         {
-            var exporter = GetAllExporters().FirstOrDefault(e => e.Name.ToLower().Contains(name.ToLower()));
-
-            if (exporter == null)
-                throw new Exception("Exporter could not be found.");
+            var exporter = GetAllExporters().FirstOrDefault(e => e.Name.ToLower().Contains(name.ToLower())) ?? throw new Exception("Exporter could not be found.");
 
             return Activator.CreateInstance(exporter.MakeGenericType(typeof(T))) as IExporter<T>;
         }

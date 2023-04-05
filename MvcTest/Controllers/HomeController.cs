@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using MvcTest.Models;
 using System.Diagnostics;
 using TCMB.CurrencyService;
